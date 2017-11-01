@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmiModelDescription fmiVersion="1.0" modelName="Last" modelIdentifier="Last" description="Last" generationTool="SimulationX 3.6.5.34033 (02/26/15) x64" generationDateAndTime="2017-10-15T14:09:53" variableNamingConvention="structured" numberOfContinuousStates="0" numberOfEventIndicators="0" guid="{31D2AA2B-E012-46F6-9BD9-1B99F9AF38D1}">
+<DefaultExperiment startTime="0" stopTime="1" tolerance="1e-005"/>
+<ModelVariables>
+<ScalarVariable name="y_start" valueReference="1073741824" description="Signal output initialization" variability="parameter">
+<Real start="0." fixed="true"/>
+</ScalarVariable>
+<ScalarVariable name="u" valueReference="536870912" description="Signal input" variability="continuous" causality="input">
+<Real start="0." fixed="true"/>
+</ScalarVariable>
+<ScalarVariable name="y" valueReference="805306368" description="Signal output" variability="continuous" causality="output">
+<Real/>
+</ScalarVariable>
+</ModelVariables>
+</fmiModelDescription>
