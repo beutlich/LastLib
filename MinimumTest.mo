@@ -6,7 +6,8 @@ package MinimumTest
     parameter Real y_start=Modelica.Constants.inf "Initialization of minimum";
     replaceable model Last = LastLib.Last_omc constrainedby LastLib.LastBase(y_start=y_start) "Last FMU"
       annotation(choices(
-       choice(redeclare model Last = LastLib.Last_dymola "Last for Dymola (Windows)"),
+       choice(redeclare model Last = LastLib.Last_dymola_linux "Last for Dymola (Linux)"),
+       choice(redeclare model Last = LastLib.Last_dymola_windows "Last for Dymola (Windows)"),
        choice(redeclare model Last = LastLib.Last_omc "Last for OpenModelica (C runtime)"),
        choice(redeclare model Last = LastLib.Last_simx "Last for SimulationX")));
     Last last(y_start=y_start) "Last FMU" annotation(Placement(transformation(extent={{-30,10},{-10,30}})));
@@ -21,8 +22,8 @@ package MinimumTest
 
   model Test
     extends Modelica.Icons.Example;
-    Real x(start=3, fixed=true);
-    Real v(start=-1, fixed=true);
+    Real x(start=3, fixed=true) "State variable";
+    Real v(start=-1, fixed=true) "Derivative of state variable";
     Modelica.Blocks.Sources.RealExpression realExpression(y=x) annotation(Placement(transformation(extent={{-30,40},{-10,60}})));
     Minimum min(y_start=2) annotation(Placement(transformation(extent={{10,40},{30,60}})));
     equation 
@@ -32,5 +33,5 @@ package MinimumTest
       der(v) = -x + 1 - time/10;
     annotation(experiment(StopTime=20));
   end Test;
-  annotation(uses(Modelica(version="3.2.2"), LastLib(version="1.0.0")));
+  annotation(uses(Modelica(version="3.2.3"), LastLib(version="2.0.0")));
 end MinimumTest;

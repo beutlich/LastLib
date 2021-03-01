@@ -1,13 +1,13 @@
 within LastLib;
 
-model Last_dymola "Last for Dymola on Windows"
+model Last_dymola_windows "Last for Dymola on Windows"
   extends LastBase(u(start = _u_start));
   final parameter Real _u_start = 0. annotation(Dialog(group="Start values for inputs"));
   parameter String fmi_instanceName="Last_fmu" annotation(Dialog(tab="FMI", group="Instance name"));
   parameter Boolean fmi_loggingOn=false annotation(Dialog(tab="FMI", group="Enable logging"));
   constant Integer fmi_NumberOfContinuousStates = 0;
   constant Integer fmi_NumberOfEventIndicators = 0;
-protected 
+protected
   Real dummyState;
   fmi_Functions.fmiModel fmi;
   parameter Real fmi_Initialized(fixed=false);
@@ -169,20 +169,24 @@ void * Last_fmiInstantiateModel2(const char*instanceName, fmiBoolean loggingOn) 
       ModelicaError(\"GetProcAddress failed for fmiGetString!\");
       return 0;
     }
+    if (!(res->dyFmiSetDebugLogging=(fmiSetDebugLoggingFunc)GetProcAddress(res->hInst,\"Last_fmiSetDebugLogging\"))) {
+      ModelicaError(\"GetProcAddress failed for fmiSetDebugLogging!\");
+      return 0;
+    }
     res->m=res->dyFmiInstantiateModel(instanceName, \"{31D2AA2B-E012-46F6-9BD9-1B99F9AF38D1}\", funcs, loggingOn);
     if (0==res->m) {free(res);res=0;ModelicaError(\"InstantiateModel failed\");}
     else {res->dyTriggered=0;res->dyTime=res->dyLastTime=-1e37;res->dyFirstTimeEvent=1e37;res->currentMode=dyInstantiationMode;}
   }
   return res;
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end constructor;
 
     function destructor "Release storage of FMI model"
       extends Modelica.Icons.Function;
       input fmiModel fmi;
       external"C"Last_fmiFreeModelInstance2(fmi);
-      annotation(Header="
+      annotation (Header="
 #ifndef Last_Free_C
 #define Last_Free_C 1
 #include <stdlib.h>
@@ -196,7 +200,7 @@ void Last_fmiFreeModelInstance2(void*m) {
     free(a);
   }
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end destructor;
   end fmiModel;
 
@@ -204,7 +208,7 @@ void Last_fmiFreeModelInstance2(void*m) {
       input fmiModel fmi;
       input Real ti;
       external"C" Last_fmiSetTime2(fmi, ti);
-      annotation(Header="
+      annotation (Header="
 #ifndef Last_SetTime_C
 #define Last_SetTime_C 1
 #include <stdlib.h>
@@ -229,7 +233,7 @@ void Last_fmiSetTime2(void*m, double ti) {
   }
   if (status!=fmiOK ) ModelicaError(\"SetTime failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end fmiSetTime;
 
     function fmiSetContinuousStates
@@ -239,7 +243,7 @@ void Last_fmiSetTime2(void*m, double ti) {
         fmi,
         x,
         size(x, 1));
-      annotation(Header="
+      annotation (Header="
 #ifndef Last_SetContinuousStates_C
 #define Last_SetContinuousStates_C 1
 #include <stdlib.h>
@@ -256,7 +260,7 @@ void Last_fmiSetContinuousStates2(void*m, const double*x, size_t nx) {
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"SetContinuousStates failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end fmiSetContinuousStates;
 
     function fmiGetContinuousStates
@@ -267,7 +271,7 @@ void Last_fmiSetContinuousStates2(void*m, const double*x, size_t nx) {
         fmi,
         x,
         nx);
-      annotation(Header="
+      annotation (Header="
 #ifndef Last_GetContinuousStates_C
 #define Last_GetContinuousStates_C 1
 #include <stdlib.h>
@@ -280,14 +284,14 @@ void Last_fmiGetContinuousStates2(void*m, double*x, int nx) {
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"GetContinuousStates failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end fmiGetContinuousStates;
 
     function fmiCompletedStep
       input fmiModel fmi;
       output Real crossing;
       external"C" crossing = Last_fmiCompletedStep2(fmi);
-      annotation(Header="
+      annotation (Header="
 #ifndef Last_CompletedStep_C
 #define Last_CompletedStep_C 1
 #include <stdlib.h>
@@ -306,7 +310,7 @@ double Last_fmiCompletedStep2(void*m) {
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"CompletedIntegratorStep failed\");
   return a->dyTriggered && a->dyTime>=a->dyLastTime;
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end fmiCompletedStep;
 
     function CompletedStep
@@ -319,7 +323,7 @@ double Last_fmiCompletedStep2(void*m) {
       input Integer realInputValueReferences[:];
       input Integer integerInputValueReferences[:];
       input Integer booleanInputValueReferences[:];
-    algorithm 
+    algorithm
       fmiSetReal(fmi,realInputValueReferences,realInputs);
       fmiSetBoolean(fmi,booleanInputValueReferences,booleanInputs);
       fmiSetInteger(fmi,integerInputValueReferences,integerInputs);
@@ -357,7 +361,7 @@ int Last_fmiEventUpdate2(void*m, double*tnext){
   *tnext=ev.nextEventTime;
   return ev.stateValuesChanged;
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end fmiEventUpdate;
 
     function EventUpdate
@@ -371,7 +375,7 @@ int Last_fmiEventUpdate2(void*m, double*tnext){
       input Integer realInputValueReferences[:];
       input Integer integerInputValueReferences[:];
       input Integer booleanInputValueReferences[:];
-    algorithm 
+    algorithm
       fmiSetReal(fmi,realInputValueReferences,realInputs);
       fmiSetBoolean(fmi,booleanInputValueReferences,booleanInputs);
       fmiSetInteger(fmi,integerInputValueReferences,integerInputs);
@@ -384,7 +388,7 @@ int Last_fmiEventUpdate2(void*m, double*tnext){
       output Real tnext;
       output Real initialized=1;
       external"C" tnext = Last_fmiInitialize2(fmi);
-      annotation(Header="
+      annotation (Header="
 #ifndef Last_Initialize_C
 #define Last_Initialize_C 1
 #include <stdlib.h>
@@ -410,7 +414,7 @@ double Last_fmiInitialize2(void*m) {
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"Initialize failed\");
   return a->dyFirstTimeEvent;
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end fmiInitialize;
 
     function fmiGetDerivatives
@@ -421,7 +425,7 @@ double Last_fmiInitialize2(void*m) {
       fmi,
       dx,
       nx);
-      annotation(Header="
+      annotation (Header="
 #ifndef Last_GetDerivatives_C
 #define Last_GetDerivatives_C 1
 #include <stdlib.h>
@@ -434,7 +438,7 @@ void Last_fmiGetDerivatives2(void*m,double*dx,int nx) {
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"GetDerivatives failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end fmiGetDerivatives;
 
     function GetDerivatives
@@ -448,7 +452,7 @@ void Last_fmiGetDerivatives2(void*m,double*dx,int nx) {
       input Integer realInputValueReferences[:];
       input Integer integerInputValueReferences[:];
       input Integer booleanInputValueReferences[:];
-    algorithm 
+    algorithm
       fmiSetReal(fmi,realInputValueReferences,realInputs);
       fmiSetBoolean(fmi,booleanInputValueReferences,booleanInputs);
       fmiSetInteger(fmi,integerInputValueReferences,integerInputs);
@@ -464,7 +468,7 @@ void Last_fmiGetDerivatives2(void*m,double*dx,int nx) {
         fmi,
         z,
         nz);
-      annotation(Header="
+      annotation (Header="
 #ifndef Last_GetEventIndicators_C
 #define Last_GetEventIndicators_C 1
 #include <stdlib.h>
@@ -477,7 +481,7 @@ void Last_fmiGetEventIndicators2(void*m,double*z,int nz) {
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"GetEventIndicators failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end fmiGetEventIndicators;
 
     function GetEventIndicators
@@ -491,7 +495,7 @@ void Last_fmiGetEventIndicators2(void*m,double*z,int nz) {
       input Integer realInputValueReferences[:];
       input Integer integerInputValueReferences[:];
       input Integer booleanInputValueReferences[:];
-    algorithm 
+    algorithm
       fmiSetReal(fmi,realInputValueReferences,realInputs);
       fmiSetBoolean(fmi,booleanInputValueReferences,booleanInputs);
       fmiSetInteger(fmi,integerInputValueReferences,integerInputs);
@@ -510,7 +514,7 @@ void Last_fmiGetEventIndicators2(void*m,double*z,int nz) {
       input Integer realInputValueReferences[:];
       input Integer integerInputValueReferences[:];
       input Integer booleanInputValueReferences[:];
-    algorithm 
+    algorithm
       fmiSetReal(fmi,realInputValueReferences,realInputs);
       fmiSetBoolean(fmi,booleanInputValueReferences,booleanInputs);
       fmiSetInteger(fmi,integerInputValueReferences,integerInputs);
@@ -528,7 +532,7 @@ void Last_fmiGetEventIndicators2(void*m,double*z,int nz) {
         refs,
         size(refs, 1),
         vals);
-        annotation(Header="
+        annotation (Header="
 #ifndef Last_SetReal_C
 #define Last_SetReal_C 1
 #include <stdlib.h>
@@ -542,14 +546,14 @@ void Last_fmiSetReal2(void*m, const int*refs, size_t nrefs, const double*vals) {
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"SetReal failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
     end fmiSetReal;
 
     function fmiSetRealParam
       input fmiModel fmi;
       input Integer refs[:];
       input Real vals[size(refs, 1)];
-    protected 
+    protected
       Real oldVals[size(refs, 1)];
       external"C"Last_fmiSetRealParam2(
         fmi,
@@ -557,7 +561,7 @@ void Last_fmiSetReal2(void*m, const int*refs, size_t nrefs, const double*vals) {
         size(refs, 1),
         vals,
         oldVals);
-        annotation(Header="
+        annotation (Header="
 #ifndef Last_SetRealParam_C
 #define Last_SetRealParam_C 1
 #include <stdlib.h>
@@ -581,7 +585,7 @@ void Last_fmiSetRealParam2(void*m, const int*refs, size_t nrefs, const double*va
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"SetReal failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
     end fmiSetRealParam;
 
     function fmiGetRealScalar
@@ -589,7 +593,7 @@ void Last_fmiSetRealParam2(void*m, const int*refs, size_t nrefs, const double*va
       input Integer ref;
       input Real dummy;
       output Real val;
-    algorithm 
+    algorithm
         val := scalar(fmiGetReal(fmi, {ref}, dummy));
     end fmiGetRealScalar;
 
@@ -603,7 +607,7 @@ void Last_fmiSetRealParam2(void*m, const int*refs, size_t nrefs, const double*va
         refs,
         size(refs, 1),
         vals);
-      annotation(Header="
+      annotation (Header="
 #ifndef Last_GetReal_C
 #define Last_GetReal_C 1
 #include <stdlib.h>
@@ -616,7 +620,7 @@ void Last_fmiGetReal2(void*m, const int*refs, size_t nrefs, double*vals) {
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"GetReal failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end fmiGetReal;
 
     function fmiGetIntegerScalar
@@ -624,7 +628,7 @@ void Last_fmiGetReal2(void*m, const int*refs, size_t nrefs, double*vals) {
       input Integer ref;
       input Integer dummy;
       output Integer val;
-    algorithm 
+    algorithm
         val := scalar(fmiGetInteger(fmi, {ref}, dummy));
     end fmiGetIntegerScalar;
 
@@ -638,7 +642,7 @@ void Last_fmiGetReal2(void*m, const int*refs, size_t nrefs, double*vals) {
         refs,
         size(refs, 1),
         vals);
-      annotation(Header="
+      annotation (Header="
 #ifndef Last_GetInteger_C
 #define Last_GetInteger_C 1
 #include <stdlib.h>
@@ -651,7 +655,7 @@ void Last_fmiGetInteger2(void*m, const int*refs, size_t nrefs, int*vals) {
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"GetInteger failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end fmiGetInteger;
 
     function fmiSetInteger
@@ -664,7 +668,7 @@ void Last_fmiGetInteger2(void*m, const int*refs, size_t nrefs, int*vals) {
         refs,
         size(refs, 1),
         vals);
-        annotation(Header="
+        annotation (Header="
 #ifndef Last_SetInteger_C
 #define Last_SetInteger_C 1
 #include <stdlib.h>
@@ -678,14 +682,14 @@ void Last_fmiSetInteger2(void*m, const int*refs, size_t nrefs, int*vals) {
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"SetInteger failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
     end fmiSetInteger;
 
     function fmiSetIntegerParam
     input fmiModel fmi;
       input Integer refs[:];
       input Integer vals[size(refs, 1)];
-    protected 
+    protected
       Integer oldVals[size(refs, 1)];
       external"C" Last_fmiSetIntegerParam2(
         fmi,
@@ -693,7 +697,7 @@ void Last_fmiSetInteger2(void*m, const int*refs, size_t nrefs, int*vals) {
         size(refs, 1),
         vals,
         oldVals);
-        annotation(Header="
+        annotation (Header="
 #ifndef Last_SetIntegerParam_C
 #define Last_SetIntegerParam_C 1
 #include <stdlib.h>
@@ -717,7 +721,7 @@ void Last_fmiSetIntegerParam2(void*m, const int*refs, size_t nrefs, int*vals, in
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"SetInteger failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
     end fmiSetIntegerParam;
 
     function fmiGetBooleanScalar
@@ -725,7 +729,7 @@ void Last_fmiSetIntegerParam2(void*m, const int*refs, size_t nrefs, int*vals, in
       input Integer ref;
       input Integer dummy;
       output Boolean val;
-    algorithm 
+    algorithm
         val := scalar(fmiGetBoolean(fmi, {ref}, dummy));
     end fmiGetBooleanScalar;
 
@@ -739,7 +743,7 @@ void Last_fmiSetIntegerParam2(void*m, const int*refs, size_t nrefs, int*vals, in
         refs,
         size(refs, 1),
         vals);
-        annotation(Header="
+        annotation (Header="
 #ifndef Last_GetBoolean_C
 #define Last_GetBoolean_C 1
 #include \"FMI/fmiImport.h\"
@@ -753,7 +757,7 @@ void Last_fmiGetBoolean2(void*m, const int* refs, size_t nr, int* vals) {
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"GetBoolean failed\");
   for(i=nr-1;i>=0;i--) vals[i]=((fmiBoolean*)(vals))[i];
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end fmiGetBoolean;
 
     function fmiSetBoolean
@@ -761,7 +765,7 @@ void Last_fmiGetBoolean2(void*m, const int* refs, size_t nr, int* vals) {
       input Integer refs[:];
       input Boolean vals[size(refs, 1)];
       output Real dummy2= 1;
-    protected 
+    protected
       Boolean dummy[size(refs, 1)];
       external"C" Last_fmiSetBoolean2(
         fmi,
@@ -769,7 +773,7 @@ void Last_fmiGetBoolean2(void*m, const int* refs, size_t nr, int* vals) {
         size(refs, 1),
         vals,
         dummy);
-        annotation(Header="
+        annotation (Header="
 #ifndef Last_SetBoolean_C
 #define Last_SetBoolean_C 1
 #include \"FMI/fmiImport.h\"
@@ -784,14 +788,14 @@ void Last_fmiSetBoolean2(void*m, const int* refs, size_t nr, const int* vals,int
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"SetBoolean failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
     end fmiSetBoolean;
 
     function fmiSetBooleanParam
       input fmiModel fmi;
       input Integer refs[:];
       input Boolean vals[size(refs, 1)];
-    protected 
+    protected
       Boolean dummy[size(refs, 1)];
       Boolean oldVals[size(refs, 1)];
       external"C" Last_fmiSetBooleanParam2(
@@ -801,7 +805,7 @@ void Last_fmiSetBoolean2(void*m, const int* refs, size_t nr, const int* vals,int
         vals,
         dummy,
         oldVals);
-        annotation(Header="
+        annotation (Header="
 #ifndef Last_SetBooleanParam_C
 #define Last_SetBooleanParam_C 1
 #include \"FMI/fmiImport.h\"
@@ -826,7 +830,7 @@ void Last_fmiSetBooleanParam2(void*m, const int* refs, size_t nr, const int* val
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"SetBoolean failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
     end fmiSetBooleanParam;
 
     function fmiGetString
@@ -839,7 +843,7 @@ void Last_fmiSetBooleanParam2(void*m, const int* refs, size_t nr, const int* val
         refs,
         size(refs, 1),
         vals);
-      annotation(Header="
+      annotation (Header="
 #ifndef Last_GetString_C
 #define Last_GetString_C 1
 #include <stdlib.h>
@@ -852,7 +856,7 @@ void Last_fmiGetString2(void*m, const int*refs, size_t nrefs, fmiString* vals) {
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"StringInteger failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries");
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last");
     end fmiGetString;
 
     function fmiSetString
@@ -864,7 +868,7 @@ void Last_fmiGetString2(void*m, const int*refs, size_t nrefs, fmiString* vals) {
         refs,
         size(refs, 1),
         vals);
-        annotation(Header="
+        annotation (Header="
 #ifndef Last_SetString_C
 #define Last_SetString_C 1
 #include \"FMI/fmiImport.h\"
@@ -878,7 +882,7 @@ void Last_fmiSetString2(void*m, const int*refs, size_t nrefs, const fmiString va
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"SetString failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
     end fmiSetString;
 
     function fmiSetStringParam
@@ -890,7 +894,7 @@ void Last_fmiSetString2(void*m, const int*refs, size_t nrefs, const fmiString va
         refs,
         size(refs, 1),
         vals);
-        annotation(Header="
+        annotation (Header="
 #ifndef Last_SetStringParam_C
 #define Last_SetStringParam_C 1
 #include \"FMI/fmiImport.h\"
@@ -908,17 +912,17 @@ void Last_fmiSetStringParam2(void*m, const int*refs, size_t nrefs, const fmiStri
   }
   if (status!=fmiOK && status!=fmiWarning) ModelicaError(\"SetString failed\");
 }
-#endif", Library="Last", __Dymola_CriticalRegion="Last", LibraryDirectory="modelica://LastLib/Resources/binaries",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
+#endif", Library="Last", LibraryDirectory="modelica://LastLib/Resources/binaries", __Dymola_CriticalRegion="Last",__Dymola_IdemPotent=true, __Dymola_VectorizedExceptFirst=true);
     end fmiSetStringParam;
 
     function noHysteresis
       input Real x;
       output Real y;
-    algorithm 
+    algorithm
       y:=x+(if (x < 0) then -1 else 1);
     end noHysteresis;
 end fmi_Functions;
-equation 
+equation
   when initial() then
     fmi = fmi_Functions.fmiModel(fmi_instanceName, fmi_loggingOn);
   end when;
@@ -926,11 +930,11 @@ equation
   when {time>=pre(fmi_TNext), fmi_StepEvent, not initial()} then
     (fmi_TNext, fmi_NewStates) =  fmi_Functions.EventUpdate(fmi, myTime, {u}, fill(0,0), fill(false,0), {536870912}, fill(0,0), fill(0,0));
   end when;
-algorithm 
+algorithm
   fmi_Functions.fmiSetTime(fmi, time);
   myTime := time;
   dummyState :=fmi_Initialized;
-initial algorithm 
+initial algorithm
  // 1 Real parameters
   fmi_Functions.fmiSetRealParam(fmi, {1073741824}, {y_start});
  // 0 Real start values
@@ -945,9 +949,9 @@ initial algorithm
   fmi_Functions.fmiSetReal(fmi, {536870912}, {_u_start});
   fmi_Functions.fmiSetTime(fmi, time);
   (fmi_TNext_Start,fmi_Initialized) :=fmi_Functions.fmiInitialize(fmi);
-equation 
+equation
   y =  fmi_Functions.GetOutput(fmi,myTime,{805306368}, {u},fill(0,0), fill(false,0), {536870912}, fill(0,0), fill(0,0));
-  annotation(defaultComponentName="last", __Dymola_FMUImportVersion="Dymola 2018", experiment(StartTime=0, StopTime=1, Tolerance=1e-005),
+  annotation(defaultComponentName="last", experiment(StartTime=0, StopTime=1, Tolerance=1e-005),
     Icon(graphics={
       Rectangle(
         extent={{-100,100},{100,-100}},
@@ -962,7 +966,7 @@ equation
       Text(
         extent={{-70,-72},{70,-94}},
         lineColor={95,95,95},
-        textString="FMI 1.0 ME Import")}),
+        textString="FMI 1.0 ME")}),
 Documentation(info="<html>
 <h4>ModelDescription Attributes</h4>
 <ul>
@@ -972,4 +976,4 @@ Documentation(info="<html>
 <li>generationDateAndTime = 2017-10-15T14:09:53</li>
 </ul>
 </html>"));
-end Last_dymola;
+end Last_dymola_windows;

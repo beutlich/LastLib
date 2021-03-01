@@ -163,10 +163,11 @@ model Last_simx "Last for SimulationX"
       input Real t;
       input Boolean isInitial;
       input Boolean isEvent;
+      input Boolean setStatesAllowed;
       input Integer dependencies;
       output Integer ret;
       output Real value[size(vr,1)];
-      external "C" ret=ITI_GetRealSetRXt10(pFMU,vr,size(vr,1),value,vru,nvru,ruvalue,nx,xvalue,t,isInitial,isEvent)
+      external "C" ret=ITI_GetRealSetRXt10(pFMU,vr,size(vr,1),value,vru,nvru,ruvalue,nx,xvalue,t,isInitial,isEvent,setStatesAllowed)
         annotation(Library="ITI_FMUImportWrapper",__iti_dllNoExport=true,__iti_AdditionalFiles="FMUImportWrapper.fls");
     end GetRealSetRXt;
     function GetRealSetRt
@@ -193,10 +194,11 @@ model Last_simx "Last for SimulationX"
       input Real t;
       input Boolean isInitial;
       input Boolean isEvent;
+      input Boolean setStatesAllowed;
       input Integer dependencies;
       output Integer ret;
       output Real dx[nx];
-      external "C" ret=ITI_GetDXSetRXt10(pFMU,nx,dx,vru,nvru,ruvalue,x,t,isInitial,t,isEvent)
+      external "C" ret=ITI_GetDXSetRXt10(pFMU,nx,dx,vru,nvru,ruvalue,x,t,isInitial,isEvent,setStatesAllowed)
         annotation(Library="ITI_FMUImportWrapper",__iti_dllNoExport=true,__iti_AdditionalFiles="FMUImportWrapper.fls");
     end GetDXSetRXt;
     function InitializeModel
@@ -360,7 +362,7 @@ model Last_simx "Last for SimulationX"
     /*nondiscrete*/ Integer retI16;
     Integer retM(
       start=1,
-      fixed=true) annotation(NoAlgorithmInitialization=true);
+      fixed=true) annotation(__iti_NoAlgorithmInitialization=true);
     /*nondiscrete*/ Integer ret1;
     /*nondiscrete*/ Integer ret2;
     /*nondiscrete*/ Integer ret3;
@@ -378,10 +380,13 @@ model Last_simx "Last for SimulationX"
     Integer ret13;
     Integer ret14;
     /*nondiscrete*/ Integer ret15;
-    fmiEventInfo eventInfo annotation(NoAlgorithmInitialization=true);
-    fmiEventInfo_i eventInfo_i annotation(NoAlgorithmInitialization=true);
+    fmiEventInfo eventInfo annotation(__iti_NoAlgorithmInitialization=true);
+    fmiEventInfo_i eventInfo_i annotation(__iti_NoAlgorithmInitialization=true);
     Boolean bTimeEvent(start=false);
     Boolean bDoReinit(
+      start=false,
+      fixed=true);
+    Boolean bSetStatesAllowed(
       start=false,
       fixed=true);
     Boolean bContinueEventIteration(start=false);
@@ -436,6 +441,7 @@ model Last_simx "Last for SimulationX"
         time,
         initial(),
         (analysisTypeDetail() == "event"),
+        pre(bSetStatesAllowed)==bSetStatesAllowed,
         retM+retI);
       assert(ret1<>fmiStatus.fmiError, "An FMI function (fmiGetReal for outputs or fmiSetXXX for real inputs or continuous states) returned fmiError.");
       assert(ret1<>fmiStatus.fmiDiscard, "An FMI function (fmiGetReal for outputs or fmiSetXXX for real inputs or continuous states) returned fmiDiscard.");
@@ -453,6 +459,7 @@ model Last_simx "Last for SimulationX"
         //trace("FMU %1: Time Event at %2", FMUName, time);
       bTimeEvent=not(pre(bTimeEvent));
     end when;
+    bSetStatesAllowed = false;
   algorithm
     if (not(initial()) and (analysisTypeDetail() == "event")) then
       ret4:=SetReal(FMU, {536870912}, {u}, 1);
