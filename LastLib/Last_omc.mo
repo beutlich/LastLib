@@ -260,13 +260,13 @@ initial equation
   flowInitialized = fmi1Functions.fmi1Initialize(fmi1me, flowParamsStart + flowInitInputs + flowStartTime);
 initial algorithm
   flowParamsStart := 1;
-  flowParamsStart := fmi1Functions.fmi1SetRealParameter(fmi1me, {1073741824.0}, {y_start});
+  flowParamsStart := fmi1Functions.fmi1SetRealParameter(fmi1me, {0.0}, {y_start});
   flowInitInputs := 1;
 initial equation
 
 equation
   flowTime = fmi1Functions.fmi1SetTime(fmi1me, time, flowInitialized);
-  {fmi_input_u} = fmi1Functions.fmi1SetReal(fmi1me, {536870912.0}, {u});
+  {fmi_input_u} = fmi1Functions.fmi1SetReal(fmi1me, {1.0}, {u});
   flowStatesInputs = fmi1Functions.fmi1SetContinuousStates(fmi1me, fmi_x, flowParamsStart + flowTime);
   der(fmi_x) = fmi1Functions.fmi1GetDerivatives(fmi1me, numberOfContinuousStates, flowStatesInputs);
   fmi_z = fmi1Functions.fmi1GetEventIndicators(fmi1me, numberOfEventIndicators, flowStatesInputs);
@@ -276,7 +276,7 @@ equation
   callEventUpdate = fmi1Functions.fmi1CompletedIntegratorStep(fmi1me, flowStatesInputs);
   triggerDSSEvent = noEvent(if callEventUpdate then flowStatesInputs + 1.0 else flowStatesInputs - 1.0);
   nextEventTime = fmi1Functions.fmi1nextEventTime(fmi1me, flowStatesInputs);
-  {y} = fmi1Functions.fmi1GetReal(fmi1me, {805306368.0}, flowStatesInputs);
+  {y} = fmi1Functions.fmi1GetReal(fmi1me, {2.0}, flowStatesInputs);
 algorithm
   when {triggerDSSEvent > flowStatesInputs, nextEventTime < time, terminal()} then
     newStatesAvailable := fmi1Functions.fmi1EventUpdate(fmi1me, intermediateResults);

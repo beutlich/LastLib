@@ -926,9 +926,9 @@ equation
   when initial() then
     fmi = fmi_Functions.fmiModel(fmi_instanceName, fmi_loggingOn);
   end when;
-  fmi_StepEvent = fmi_Functions.CompletedStep(fmi, myTime, {u}, fill(0,0), fill(false,0), {536870912}, fill(0,0), fill(0,0))>0.5;
+  fmi_StepEvent = fmi_Functions.CompletedStep(fmi, myTime, {u}, fill(0,0), fill(false,0), {1}, fill(0,0), fill(0,0))>0.5;
   when {time>=pre(fmi_TNext), fmi_StepEvent, not initial()} then
-    (fmi_TNext, fmi_NewStates) =  fmi_Functions.EventUpdate(fmi, myTime, {u}, fill(0,0), fill(false,0), {536870912}, fill(0,0), fill(0,0));
+    (fmi_TNext, fmi_NewStates) =  fmi_Functions.EventUpdate(fmi, myTime, {u}, fill(0,0), fill(false,0), {1}, fill(0,0), fill(0,0));
   end when;
 algorithm
   fmi_Functions.fmiSetTime(fmi, time);
@@ -936,7 +936,7 @@ algorithm
   dummyState :=fmi_Initialized;
 initial algorithm
  // 1 Real parameters
-  fmi_Functions.fmiSetRealParam(fmi, {1073741824}, {y_start});
+  fmi_Functions.fmiSetRealParam(fmi, {0}, {y_start});
  // 0 Real start values
  // 0 Integer parameters
  // 0 Integer start values
@@ -946,11 +946,11 @@ initial algorithm
  // 0 Enumeration start values
  // 0 String parameters
  // Set InitalInputs
-  fmi_Functions.fmiSetReal(fmi, {536870912}, {_u_start});
+  fmi_Functions.fmiSetReal(fmi, {1}, {_u_start});
   fmi_Functions.fmiSetTime(fmi, time);
   (fmi_TNext_Start,fmi_Initialized) :=fmi_Functions.fmiInitialize(fmi);
 equation
-  y =  fmi_Functions.GetOutput(fmi,myTime,{805306368}, {u},fill(0,0), fill(false,0), {536870912}, fill(0,0), fill(0,0));
+  y =  fmi_Functions.GetOutput(fmi,myTime,{2}, {u},fill(0,0), fill(false,0), {1}, fill(0,0), fill(0,0));
   annotation(defaultComponentName="last", experiment(StartTime=0, StopTime=1, Tolerance=1e-005),
     Icon(graphics={
       Rectangle(
@@ -972,8 +972,6 @@ Documentation(info="<html>
 <ul>
 <li>fmiVersion = 1.0</li>
 <li>modelName = Last</li>
-<li>generationTool = SimulationX 3.6.5.34033 (02/26/15) x64</li>
-<li>generationDateAndTime = 2017-10-15T14:09:53</li>
 </ul>
 </html>"));
 end Last_dymola_linux;

@@ -395,7 +395,7 @@ model Last_simx "Last for SimulationX"
     extends LastBase;
   initial algorithm
     if noEvent(IsInitialized(FMU)==0) then
-      retI1:=SetReal(FMU, {1073741824}, {y_start}, 1);
+      retI1:=SetReal(FMU, {0}, {y_start}, 1);
       assert(retI1<>fmiStatus.fmiError, "The FMI function fmiSetReal for a parameter returned fmiError.");
       assert(retI1<>fmiStatus.fmiDiscard, "The FMI function fmiSetReal for a parameter returned fmiDiscard.");
       retI2:=1;
@@ -407,7 +407,7 @@ model Last_simx "Last for SimulationX"
       retI4:=1;
       assert(retI4<>fmiStatus.fmiError, "The FMI function fmiSetString for a parameter returned fmiError.");
       assert(retI4<>fmiStatus.fmiDiscard, "The FMI function fmiSetString for a parameter returned fmiDiscard.");
-      retI5:=SetReal(FMU, {536870912}, {u}, retI4);
+      retI5:=SetReal(FMU, {1}, {u}, retI4);
       assert(retI5<>fmiStatus.fmiError, "The FMI function fmiSetReal for an input returned fmiError.");
       assert(retI5<>fmiStatus.fmiDiscard, "The FMI function fmiSetReal for an input returned fmiDiscard.");
       retI6:=1;
@@ -432,8 +432,8 @@ model Last_simx "Last for SimulationX"
     end if;
   equation
       (ret1, realOutputs) = GetRealSetRXt(FMU,
-        {805306368},
-        {536870912},
+        {2},
+        {1},
         1,
         {u},
         0,
@@ -462,7 +462,7 @@ model Last_simx "Last for SimulationX"
     bSetStatesAllowed = false;
   algorithm
     if (not(initial()) and (analysisTypeDetail() == "event")) then
-      ret4:=SetReal(FMU, {536870912}, {u}, 1);
+      ret4:=SetReal(FMU, {1}, {u}, 1);
       assert(ret4<>fmiStatus.fmiError, "The FMI function fmiSetReal for an input returned fmiError.");
       assert(ret4<>fmiStatus.fmiDiscard, "The FMI function fmiSetReal for an input returned fmiDiscard.");
       ret5:=1;
