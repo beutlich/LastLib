@@ -18,6 +18,9 @@
  *  02.08.2013 fixed a bug in instantiateModel reported by Markus Ende, TH Nuernberg
  *  02.04.2014 better time event handling
  *  02.06.2014 copy instanceName and GUID at instantiation
+ *  08.03.2021 enabled fmiSetContinuousStates / fmiGetStateValueReferences /
+ *     fmiGetContinuousStates / fmiGetNominalContinuousStates /
+ *     fmiGetDerivatives with a NULL pointer as state vector
  *
  * Copyright QTronic GmbH. All rights reserved.
  * ---------------------------------------------------------------------------*/
@@ -43,7 +46,7 @@ fmiValueReference vrStates[NUMBER_OF_STATES] = STATES;
 // Private helpers used below to validate function arguments
 // ---------------------------------------------------------------------------
 
-static fmiBoolean invalidNumber(ModelInstance* comp, const char* f, const char* arg, int n, int nExpected){
+static fmiBoolean invalidNumber(ModelInstance* comp, const char* f, const char* arg, size_t n, size_t nExpected){
     if (n != nExpected) {
         comp->state = modelError;
         comp->functions.logger(comp, comp->instanceName, fmiError, "error",
@@ -75,7 +78,7 @@ static fmiBoolean nullPointer(ModelInstance* comp, const char* f, const char* ar
     return fmiFalse;
 }
 
-static fmiBoolean vrOutOfRange(ModelInstance* comp, const char* f, fmiValueReference vr, int end) {
+static fmiBoolean vrOutOfRange(ModelInstance* comp, const char* f, fmiValueReference vr, unsigned int end) {
     if (vr >= end) {
         comp->functions.logger(comp, comp->instanceName, fmiError, "error",
                 "%s: Illegal value reference %u.", f, vr);
@@ -645,14 +648,16 @@ fmiStatus fmiSetTime(fmiComponent c, fmiReal time) {
 
 fmiStatus fmiSetContinuousStates(fmiComponent c, const fmiReal x[], size_t nx){
     ModelInstance* comp = (ModelInstance *)c;
+#if NUMBER_OF_STATES>0
     int i;
+#endif
     if (invalidState(comp, "fmiSetContinuousStates", modelInitialized))
          return fmiError;
     if (invalidNumber(comp, "fmiSetContinuousStates", "nx", nx, NUMBER_OF_STATES))
         return fmiError;
+#if NUMBER_OF_STATES>0
     if (nullPointer(comp, "fmiSetContinuousStates", "x[]", x))
          return fmiError;
-#if NUMBER_OF_STATES>0
     for (i=0; i<nx; i++) {
         fmiValueReference vr = vrStates[i];
         if (comp->loggingOn) comp->functions.logger(c, comp->instanceName, fmiOK, "log",
@@ -695,15 +700,17 @@ fmiStatus fmiCompletedIntegratorStep(fmiComponent c, fmiBoolean* callEventUpdate
 }
 
 fmiStatus fmiGetStateValueReferences(fmiComponent c, fmiValueReference vrx[], size_t nx){
+#if NUMBER_OF_STATES>0
     int i;
+#endif
     ModelInstance* comp = (ModelInstance *)c;
     if (invalidState(comp, "fmiGetStateValueReferences", not_modelError))
         return fmiError;
     if (invalidNumber(comp, "fmiGetStateValueReferences", "nx", nx, NUMBER_OF_STATES))
         return fmiError;
+#if NUMBER_OF_STATES>0
     if (nullPointer(comp, "fmiGetStateValueReferences", "vrx[]", vrx))
          return fmiError;
-#if NUMBER_OF_STATES>0
     for (i=0; i<nx; i++) {
         vrx[i] = vrStates[i];
         if (comp->loggingOn) comp->functions.logger(c, comp->instanceName, fmiOK, "log",
@@ -714,15 +721,17 @@ fmiStatus fmiGetStateValueReferences(fmiComponent c, fmiValueReference vrx[], si
 }
 
 fmiStatus fmiGetContinuousStates(fmiComponent c, fmiReal states[], size_t nx){
+#if NUMBER_OF_STATES>0
     int i;
+#endif
     ModelInstance* comp = (ModelInstance *)c;
     if (invalidState(comp, "fmiGetContinuousStates", not_modelError))
         return fmiError;
     if (invalidNumber(comp, "fmiGetContinuousStates", "nx", nx, NUMBER_OF_STATES))
         return fmiError;
+#if NUMBER_OF_STATES>0
     if (nullPointer(comp, "fmiGetContinuousStates", "states[]", states))
          return fmiError;
-#if NUMBER_OF_STATES>0
     for (i=0; i<nx; i++) {
         fmiValueReference vr = vrStates[i];
         states[i] = getReal(comp, vr); // to be implemented by the includer of this file
@@ -734,31 +743,37 @@ fmiStatus fmiGetContinuousStates(fmiComponent c, fmiReal states[], size_t nx){
 }
 
 fmiStatus fmiGetNominalContinuousStates(fmiComponent c, fmiReal x_nominal[], size_t nx){
+#if NUMBER_OF_STATES>0
     int i;
+#endif
     ModelInstance* comp = (ModelInstance *)c;
     if (invalidState(comp, "fmiGetNominalContinuousStates", not_modelError))
         return fmiError;
     if (invalidNumber(comp, "fmiGetNominalContinuousStates", "nx", nx, NUMBER_OF_STATES))
         return fmiError;
+#if NUMBER_OF_STATES>0
     if (nullPointer(comp, "fmiGetNominalContinuousStates", "x_nominal[]", x_nominal))
          return fmiError;
     if (comp->loggingOn) comp->functions.logger(c, comp->instanceName, fmiOK, "log",
         "fmiGetNominalContinuousStates: x_nominal[0..%d] = 1.0", nx-1);
     for (i=0; i<nx; i++)
         x_nominal[i] = 1;
+#endif
     return fmiOK;
 }
 
 fmiStatus fmiGetDerivatives(fmiComponent c, fmiReal derivatives[], size_t nx) {
+#if NUMBER_OF_STATES>0
     int i;
+#endif
     ModelInstance* comp = (ModelInstance *)c;
     if (invalidState(comp, "fmiGetDerivatives", not_modelError))
          return fmiError;
     if (invalidNumber(comp, "fmiGetDerivatives", "nx", nx, NUMBER_OF_STATES))
         return fmiError;
+#if NUMBER_OF_STATES>0
     if (nullPointer(comp, "fmiGetDerivatives", "derivatives[]", derivatives))
          return fmiError;
-#if NUMBER_OF_STATES>0
     for (i=0; i<nx; i++) {
         fmiValueReference vr = vrStates[i] + 1;
         derivatives[i] = getReal(comp, vr); // to be implemented by the includer of this file
@@ -770,7 +785,9 @@ fmiStatus fmiGetDerivatives(fmiComponent c, fmiReal derivatives[], size_t nx) {
 }
 
 fmiStatus fmiGetEventIndicators(fmiComponent c, fmiReal eventIndicators[], size_t ni) {
+#if NUMBER_OF_STATES>0
     int i;
+#endif
     ModelInstance* comp = (ModelInstance *)c;
     if (invalidState(comp, "fmiGetEventIndicators", not_modelError))
         return fmiError;
@@ -786,7 +803,7 @@ fmiStatus fmiGetEventIndicators(fmiComponent c, fmiReal eventIndicators[], size_
     return fmiOK;
 }
 
-fmiStatus fmiTerminate(fmiComponent c){
+fmiStatus fmiTerminate(fmiComponent c) {
     return terminate("fmiTerminate", c);
 }
 
