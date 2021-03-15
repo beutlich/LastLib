@@ -34,6 +34,7 @@ void setStartValues(ModelInstance *comp) {
 // called by fmiInitialize() after setting eventInfo to defaults
 // Used to set the first time event, if any.
 void initialize(ModelInstance* comp, fmiEventInfo* eventInfo) {
+    r(u_) = r(y_start_);
     r(y_) = r(y_start_);
 }
 
