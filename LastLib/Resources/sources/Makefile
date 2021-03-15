@@ -1,15 +1,15 @@
 RM = rm -f
 
-CFLAGS = -O3 -fPIC
+CFLAGS = -O3 -fPIC -Wall -pedantic
 CPPFLAGS = -DNDEBUG
 INC = -I .
-LDFLAGS =
+LDFLAGS = -shared
 LDLIBS = -lm
 
 OBJECTS = ./last.o
 
 Last.so: $(OBJECTS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(INC) $(LDFLAGS) -shared -o Last.so $(OBJECTS) $(LDLIBS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INC) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS)
 
 ./last.o: last.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(INC) -c ./last.c
