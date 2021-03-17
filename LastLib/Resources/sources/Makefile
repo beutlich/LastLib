@@ -1,6 +1,6 @@
 RM = rm -f
 
-CFLAGS = -O3 -fPIC -Wall -pedantic
+CFLAGS = -O3 -fPIC -Wall -pedantic -std=c99
 CPPFLAGS = -DNDEBUG
 INC = -I .
 LDFLAGS = -shared
