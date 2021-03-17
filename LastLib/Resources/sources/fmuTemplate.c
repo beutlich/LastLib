@@ -56,13 +56,26 @@ static fmiBoolean invalidNumber(ModelInstance* comp, const char* f, const char* 
     return fmiFalse;
 }
 
+static const char *stateNames[16] = {
+    "Undefined", "Instantiated", "Initialized", "Instantiated or Initialized",
+    "Terminated", "Instantiated or Terminated", "Initialized or Terminated", "Instantiated or Initialized or Terminated",
+    "Error", "Instantiated or Error", "Initialized or Error", "Instantiated or Initialized or Error",
+    "Terminated or Error", "Instantiated or Terminated or Error", "Initialized or Terminated or Error", "Instantiated or Initialized or Terminated or Error"
+};
+
 static fmiBoolean invalidState(ModelInstance* comp, const char* f, int statesExpected){
     if (!comp)
         return fmiTrue;
     if (!(comp->state & statesExpected)) {
+        const ModelState state = comp->state;
         comp->state = modelError;
         comp->functions.logger(comp, comp->instanceName, fmiError, "error",
                 "%s: Illegal call sequence.", f);
+        if (comp->state < 1<<4) {
+            comp->functions.logger(comp, comp->instanceName, fmiError, "error",
+                    "%s must not be called in FMU state %s. "
+                    "Expected FMU state(s): %s.", f, stateNames[state], stateNames[statesExpected]);
+        }
         return fmiTrue;
     }
     return fmiFalse;
