@@ -71,8 +71,8 @@ static fmiBoolean invalidState(ModelInstance* comp, const char* f, int statesExp
         comp->state = modelError;
         comp->functions.logger(comp, comp->instanceName, fmiError, "error",
                 "%s: Illegal call sequence.", f);
-        if (comp->state < 1<<4) {
-            comp->functions.logger(comp, comp->instanceName, fmiError, "error",
+        if (comp->loggingOn && comp->state < 1<<4) {
+            comp->functions.logger(comp, comp->instanceName, fmiOK, "log",
                     "%s must not be called in FMU state %s. "
                     "Expected FMU state(s): %s.", f, stateNames[state], stateNames[statesExpected]);
         }
@@ -187,7 +187,7 @@ static fmiStatus init(char* fname, fmiComponent c, fmiBoolean toleranceControlle
 // fname is fmiTerminate or fmiTerminateSlave
 static fmiStatus terminate(char* fname, fmiComponent c){
     ModelInstance* comp = (ModelInstance *)c;
-    if (invalidState(comp, fname, modelInitialized))
+    if (invalidState(comp, fname, modelInitialized|modelError))
          return fmiError;
     if (comp->loggingOn) comp->functions.logger(c, comp->instanceName, fmiOK, "log", fname);
     comp->state = modelTerminated;
