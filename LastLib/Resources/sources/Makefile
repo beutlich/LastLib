@@ -11,7 +11,7 @@ OBJECTS = ./last.o
 Last.so: $(OBJECTS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(INC) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS)
 
-./last.o: last.c
+./last.o: last.c fmuTemplate.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(INC) -c ./last.c
 
 clean:
