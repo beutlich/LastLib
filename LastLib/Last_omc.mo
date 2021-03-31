@@ -254,6 +254,17 @@ protected
       external "C" outCallEventUpdate = fmi1CompletedIntegratorStep_OMC(fmi1me, inFlowStates) annotation(
         Library = {"OpenModelicaFMIRuntimeC", "fmilib"});
     end fmi1CompletedIntegratorStep;
+
+    function fmi1CompletedIntegratorStepSetRealInputs
+      input FMI1ModelExchange fmi1me;
+      input Real inFlowStates;
+      input Real realValueReferences[:];
+      input Real realValues[size(realValueReferences, 1)];
+      output Boolean outCallEventUpdate;
+    algorithm
+      fmi1SetReal(fmi1me, realValueReferences, realValues);
+      outCallEventUpdate := fmi1CompletedIntegratorStep(fmi1me, inFlowStates);
+    end fmi1CompletedIntegratorStepSetRealInputs;
   end fmi1Functions;
 initial equation
   flowStartTime = fmi1Functions.fmi1SetTime(fmi1me, time, 1);
@@ -273,7 +284,7 @@ equation
   for i in 1:size(fmi_z, 1) loop
     fmi_z_positive[i] = if not terminal() then fmi_z[i] > 0 else pre(fmi_z_positive[i]);
   end for;
-  callEventUpdate = fmi1Functions.fmi1CompletedIntegratorStep(fmi1me, flowStatesInputs);
+  callEventUpdate = fmi1Functions.fmi1CompletedIntegratorStepSetRealInputs(fmi1me, flowStatesInputs, {1.0}, {u});
   triggerDSSEvent = noEvent(if callEventUpdate then flowStatesInputs + 1.0 else flowStatesInputs - 1.0);
   nextEventTime = fmi1Functions.fmi1nextEventTime(fmi1me, flowStatesInputs);
   {y} = fmi1Functions.fmi1GetReal(fmi1me, {2.0}, flowStatesInputs);
