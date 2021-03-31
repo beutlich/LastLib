@@ -247,8 +247,6 @@ fmiStatus fmiSetReal(fmiComponent c, const fmiValueReference vr[], size_t nvr, c
          return fmiError;
     if (nvr>0 && nullPointer(comp, "fmiSetReal", "value[]", value))
          return fmiError;
-    if (comp->loggingOn) comp->functions.logger(c, comp->instanceName, fmiOK, "log",
-            "fmiSetReal: nvr = %d", nvr);
     // no check whether setting the value is allowed in the current state
     for (i=0; i<nvr; i++) {
        if (vrOutOfRange(comp, "fmiSetReal", vr[i], NUMBER_OF_REALS))
@@ -269,8 +267,6 @@ fmiStatus fmiSetInteger(fmiComponent c, const fmiValueReference vr[], size_t nvr
          return fmiError;
     if (nvr>0 && nullPointer(comp, "fmiSetInteger", "value[]", value))
          return fmiError;
-    if (comp->loggingOn)
-        comp->functions.logger(c, comp->instanceName, fmiOK, "log", "fmiSetInteger: nvr = %d",  nvr);
     for (i=0; i<nvr; i++) {
        if (vrOutOfRange(comp, "fmiSetInteger", vr[i], NUMBER_OF_INTEGERS))
            return fmiError;
@@ -290,8 +286,6 @@ fmiStatus fmiSetBoolean(fmiComponent c, const fmiValueReference vr[], size_t nvr
          return fmiError;
     if (nvr>0 && nullPointer(comp, "fmiSetBoolean", "value[]", value))
          return fmiError;
-    if (comp->loggingOn)
-        comp->functions.logger(c, comp->instanceName, fmiOK, "log", "fmiSetBoolean: nvr = %d",  nvr);
     for (i=0; i<nvr; i++) {
         if (vrOutOfRange(comp, "fmiSetBoolean", vr[i], NUMBER_OF_BOOLEANS))
             return fmiError;
@@ -311,8 +305,6 @@ fmiStatus fmiSetString(fmiComponent c, const fmiValueReference vr[], size_t nvr,
          return fmiError;
     if (nvr>0 && nullPointer(comp, "fmiSetString", "value[]", value))
          return fmiError;
-    if (comp->loggingOn)
-        comp->functions.logger(c, comp->instanceName, fmiOK, "log", "fmiSetString: nvr = %d",  nvr);
     for (i=0; i<nvr; i++) {
         char *string = (char *)comp->s[vr[i]];
         if (vrOutOfRange(comp, "fmiSetString", vr[i], NUMBER_OF_STRINGS))
@@ -654,7 +646,7 @@ fmiStatus fmiSetTime(fmiComponent c, fmiReal time) {
     if (invalidState(comp, "fmiSetTime", modelInstantiated|modelInitialized))
          return fmiError;
     if (comp->loggingOn) comp->functions.logger(c, comp->instanceName, fmiOK, "log",
-            "fmiSetTime: time=%.16g", time);
+            "fmiSetTime: time = %.16g", time);
     comp->time = time;
     return fmiOK;
 }
