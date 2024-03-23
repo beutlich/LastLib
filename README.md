@@ -22,6 +22,8 @@ An overview of the library and early experiments is provided in
 The primary use-case of LastLib is the calculation of the online-minimum.
 The provided example model `MinimumTest.Test` demonstrates the usage of the `LastLib` within the minimum block `MinimumTest.Minimum`.
 
+![Minimum Plot](LastLib/Resources/Images/MinimumTest.Test_plot.png)
+
 ## License
 
 LastLib is released under the terms of the Simplified BSD License.
