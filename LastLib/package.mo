@@ -7,5 +7,5 @@ package LastLib
     parameter Real y_start = 0. "Signal output initialization";
     extends Modelica.Blocks.Interfaces.SISO;
   end LastBase;
-  annotation(uses(Modelica(version="3.2.3")), version="2.0.0");
+  annotation(uses(Modelica(version="4.0.0")), version="2.0.0");
 end LastLib;

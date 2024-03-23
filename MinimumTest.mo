@@ -33,5 +33,5 @@ package MinimumTest
       der(v) = -x + 1 - time/10;
     annotation(experiment(StopTime=20));
   end Test;
-  annotation(uses(Modelica(version="3.2.3"), LastLib(version="2.0.0")));
+  annotation(uses(Modelica(version="4.0.0"), LastLib(version="2.0.0")));
 end MinimumTest;
