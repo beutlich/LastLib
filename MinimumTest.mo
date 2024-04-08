@@ -76,5 +76,5 @@ according to the Modelica tool!",
           horizontalAlignment=TextAlignment.Left)}),
       Icon(coordinateSystem(extent={{-80,-40},{80,40}})));
   end Test;
-  annotation(uses(Modelica(version="4.0.0"), LastLib(version="2.0.0")));
+  annotation(uses(Modelica(version="4.0.0"), LastLib(version="2.0.0")), version="2.0.0");
 end MinimumTest;
