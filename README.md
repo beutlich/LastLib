@@ -7,7 +7,7 @@ It was first presented at the 17th meeting of the Modelica Users’ Group Saxony
 
 LastLib consists of tool-specific Modelica wrappers for the imported Last.fmu to obtain the value of the _last_ valid simulation step.
 
-An overview of the library and early experiments is provided in
+An overview of the library and early experiments are provided in
 
 > Thomas Beutlich. Experiments and an FMI Idea on the Online-Minimum Problem. Presentation given at the 17th Modelisax Meeting, Dresden, Germany, November 2017. URL: [tinyurl.com/lastlibfmu](https://tinyurl.com/lastlibfmu).
 
